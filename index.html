@@ -35,7 +35,7 @@
 // Create a PayPal Checkout component
 // Create a client.
 braintree.client.create({
-  authorization: 'sandbox_zjmbj683_926q7cx2s9rp5fh5'
+  authorization: 'sandbox_9cn37sjt_wwdyzynjc54qxywk'
   //merchantAccountId: 'deliverooitalyEUR'
 }, function (clientErr, clientInstance) {
 
@@ -50,10 +50,9 @@ braintree.client.create({
   // Create a PayPal Checkout component.
   braintree.paypalCheckout.create({
     client: clientInstance,
-    merchantAccountId: 'deliverooitalyEUR'
   }, function (paypalCheckoutErr, paypalCheckoutInstance) {
     paypalCheckoutInstance.loadPayPalSDK({
-      currency: 'EUR',
+      currency: 'USD',
       intent: 'capture',
       commit: true
     }, function () {
@@ -90,7 +89,7 @@ braintree.client.create({
                 amount: 110.00, // Required
                 returnUrl: "example.com/return",
                 cancelUrl: "example.com/cancel",
-                currency: 'EUR', // Required, must match the currency passed in with loadPayPalSDK
+                currency: 'USD', // Required, must match the currency passed in with loadPayPalSDK
                 intent: 'capture', // Must match the intent passed in with loadPayPalSDK
                 //riskCorrelationId: 'a0d740615409c606e6f87246bddd7088',
                 enableShippingAddress: true,
