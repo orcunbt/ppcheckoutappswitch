@@ -1,0 +1,154 @@
+
+<html>
+<head>
+
+  <style>
+    .hidden {
+      display: none;
+    }
+
+        .page-break {
+            page-break-before: always; 
+        }
+    </style>
+    <div class="page-break"></div>
+
+  </style>
+
+</head>
+
+
+<body>
+
+<!-- Load the client component. --> 
+<script src="https://js.braintreegateway.com/web/3.118.2/js/client.min.js"></script> 
+<!-- Load the PayPal Checkout component. --> 
+<script src="https://js.braintreegateway.com/web/3.118.2/js/paypal-checkout.min.js"></script>
+
+<div id="paypal-button"></div>
+
+<p id="error" class="hidden">Please tick the checkbox to acknowlege our terms and conditions!</p>
+<label><input id="check" type="checkbox"> Accept terms and conditions </label>
+
+<script>
+
+// Create a PayPal Checkout component
+// Create a client.
+braintree.client.create({
+  authorization: 'sandbox_zjmbj683_926q7cx2s9rp5fh5'
+  //merchantAccountId: 'deliverooitalyEUR'
+}, function (clientErr, clientInstance) {
+
+  // Stop if there was a problem creating the client.
+  // This could happen if there is a network error or if the authorization
+  // is invalid.
+  if (clientErr) {
+    console.error('Error creating client:', clientErr);
+    return;
+  }
+
+  // Create a PayPal Checkout component.
+  braintree.paypalCheckout.create({
+    client: clientInstance,
+    merchantAccountId: 'deliverooitalyEUR'
+  }, function (paypalCheckoutErr, paypalCheckoutInstance) {
+    paypalCheckoutInstance.loadPayPalSDK({
+      currency: 'EUR',
+      intent: 'capture',
+      commit: true
+    }, function () {
+      paypal.Buttons({
+        fundingSource: paypal.FUNDING.PAYPAL,
+        appSwitchWhenAvailable: true,
+            // onInit is called when the button first renders
+            onInit: function(data, actions) {
+              // Disable the buttons
+              actions.disable();
+              // Listen for changes to the checkbox
+              document.querySelector('#check')
+                .addEventListener('change', function(event) {
+                  // Enable or disable the button when it is checked or unchecked
+                  if (event.target.checked) {
+                    return actions.enable();
+                  } else {
+                    return actions.disable();
+                  }
+                });
+            },
+            // onClick is called when the button is clicked
+            onClick: function() {
+              // Show a validation error if the checkbox is not checked
+              if (!document.querySelector('#check').checked) {
+                document.querySelector('#error').classList.remove('hidden');
+                alert('Make sure to tick the checkbox to acknowlege our terms and conditions!')
+              }
+            },
+
+            createOrder: function () {
+              return paypalCheckoutInstance.createPayment({
+                flow: 'checkout', // Required
+                amount: 110.00, // Required
+                returnUrl: "example.com/return",
+                cancelUrl: "example.com/cancel",
+                currency: 'EUR', // Required, must match the currency passed in with loadPayPalSDK
+                intent: 'capture', // Must match the intent passed in with loadPayPalSDK
+                //riskCorrelationId: 'a0d740615409c606e6f87246bddd7088',
+                enableShippingAddress: true,
+                shippingAddressEditable: false,
+                lineItems: [
+      {
+        quantity: 1,
+        unitAmount: '100.00',
+        name: 'Test Order',
+        kind: 'debit',
+        description: 'Test Order',
+        unitTaxAmount: '10.00'
+      } 
+    ] ,
+                shippingAddressOverride: {
+                  recipientName: 'Orcun Keskin',
+                  line1: 'Badensche Str. 24',
+                  line2: 'Unit 1',
+                  city: 'Chicago',
+                  countryCode: 'US',
+                  postalCode: '10715',
+                  state: '',
+                  phone: '123.456.7890'
+                }
+              });
+            },
+
+        onApprove: function (data, actions) {
+          return paypalCheckoutInstance.tokenizePayment(data, function (err, payload) {
+            // Submit 'payload.nonce' to your server
+            console.log('Payment method nonce:' +  JSON.stringify(payload, 0, 2))
+          });
+        },
+
+        onCancel: function (data) {
+          console.log('PayPal payment canceled', JSON.stringify(data, 0, 2));
+        },
+
+        onError: function (err) {
+          console.error('PayPal error', err);
+        }
+      }).render('#paypal-button').then(function () {
+        // The PayPal button will be rendered in an html element with the ID
+        // 'paypal-button'. This function will be called when the PayPal button
+        // is set up and ready to be used
+      });
+
+    });
+
+  });
+
+});
+
+</script>
+
+</body>
+
+
+
+
+</html>
