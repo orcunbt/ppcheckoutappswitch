@@ -59,66 +59,34 @@ braintree.client.create({
       paypal.Buttons({
         fundingSource: paypal.FUNDING.PAYPAL,
         appSwitchWhenAvailable: true,
-            // onInit is called when the button first renders
-            onInit: function(data, actions) {
-              // Disable the buttons
-              actions.disable();
-              // Listen for changes to the checkbox
-              document.querySelector('#check')
-                .addEventListener('change', function(event) {
-                  // Enable or disable the button when it is checked or unchecked
-                  if (event.target.checked) {
-                    return actions.enable();
-                  } else {
-                    return actions.disable();
-                  }
-                });
-            },
-            // onClick is called when the button is clicked
-            onClick: function() {
-              // Show a validation error if the checkbox is not checked
-              if (!document.querySelector('#check').checked) {
-                document.querySelector('#error').classList.remove('hidden');
-                alert('Make sure to tick the checkbox to acknowlege our terms and conditions!')
-              }
-            },
 
             createOrder: function () {
               return paypalCheckoutInstance.createPayment({
                 flow: 'checkout', // Required
-                amount: 110.00, // Required
+                amount: 160.00, // Required
                 returnUrl: "example.com/return",
                 cancelUrl: "example.com/cancel",
+                shippingCallbackUrl = "https://webhooklistenerorco2024.onrender.com/callback/paypal",
                 currency: 'USD', // Required, must match the currency passed in with loadPayPalSDK
                 intent: 'capture', // Must match the intent passed in with loadPayPalSDK
                 //riskCorrelationId: 'a0d740615409c606e6f87246bddd7088',
                 enableShippingAddress: true,
-                shippingAddressEditable: false,
                 lineItems: [
       {
         quantity: 1,
-        unitAmount: '100.00',
+        unitAmount: '120.00',
         name: 'Test Order',
         kind: 'debit',
-        description: 'Test Order',
-        unitTaxAmount: '10.00'
+        description: 'Test Order'
+      } ,
+                        {
+        quantity: 1,
+        unitAmount: '40.00',
+        name: 'Test Order 2',
+        kind: 'debit',
+        description: 'Test Order 2'
       } 
-    ] ,
-                shippingAddressOverride: {
-                    recipientEmail: "example@email.com",
-  internationalPhone: {
-    countryCode: "1",
-    nationalNumber: "2345678910",
-  },
-                  recipientName: 'Orcun Keskin',
-                  line1: 'Badensche Str. 24',
-                  line2: 'Unit 1',
-                  city: 'Chicago',
-                  countryCode: 'US',
-                  postalCode: '10715',
-                  state: '',
-                  phone: '123.456.7890'
-                }
+    ] 
               });
             },
 
